@@ -1,14 +1,12 @@
-
-
-project bars_tension
-problem planestress
-bmp bars_tension.bmp
-mat steel
-unit mm
-scale 1
+project asdasd.bmp
+problem planestrain
+bmp asdasd.bmp.bmp
+mat alu
+unit m
+scale 3
 thickness 2
-load x 0 y -1e2 magenta
-solver direct
+load x 3 y -105 bronze
+solver lsqs
 disp x y mag
-stress sign_huber huber sig_x sig_y tau_xy eps_x eps_y gamma_xy
-deformed 2
+stress sig_x sign_huber eps_y sig_y gamma_xy
+deformed 4
