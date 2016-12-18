@@ -1,12 +1,12 @@
-project asdasd.bmp
-problem planestrain
-bmp asdasd.bmp.bmp
-mat alu
-unit m
-scale 3
+project V
+problem planestress
+bmp V.bmp
+mat steel
+unit nm
+scale 1
 thickness 2
-load x 3 y -105 bronze
-solver lsqs
-disp x y mag
-stress sig_x sign_huber eps_y sig_y gamma_xy
-deformed 4
+load x 0 y -100 magenta
+solver direct
+disp x mag
+stress eps_x sig_x sign_huber eps_y sig_y
+deformed 2

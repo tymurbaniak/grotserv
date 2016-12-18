@@ -33,11 +33,12 @@
 			<p>
 			<?php
 				$target_dir = "/var/www/html/uploads/";
-				$target_file = $target_dir . basename($_FILES["bitmap"]["name"]);
-				$uploadOk = 1;
-				$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+				
 				// Check if image file is a actual image or fake image
 				if(isset($_POST["submit"])) {
+					$target_file = $target_dir . basename($_FILES["bitmap"]["name"]);
+					$uploadOk = 1;
+					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 					$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
 					if($check !== false) {
 						echo "File is an image - " . $check["mime"] . ".";
@@ -50,7 +51,7 @@
 							$stress = getoptions($_POST["stress"]);
 						}
 						if(isset($_FILES["bitmap"]["name"])){
-							$projectname = basename($_FILES["bitmap"]["name"]);
+							$projectname = pathinfo($_FILES["bitmap"]["name"], PATHINFO_FILENAME);
 						}
 						if(isset($_POST["problem"])){
 							$problem = $_POST["problem"];
@@ -95,12 +96,11 @@
 						);
 						
 						file_put_contents("input.txt", $settings);
-						
-						//$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-						//echo "<p>".$output."</p>";
 					if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
 						echo "File uploaded!<br>";
-					}else{
+						$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+						echo "<p>".$output."</p>";
+					} else {
 						echo "Upload errror<br>";
 					}
 						$uploadOk = 1;
@@ -131,7 +131,7 @@
 		<h1>Uploaded project: </h1>
 			<hr><div class="row">
 				<div class="col-md-3">
-					<a href="<?php echo $target_file; ?>"><img src="<?php echo $target_file; ?>" width="50%" class="after" alt="<?php echo basename($target_file); ?> before computation"></a>
+					<a href="<?php echo $target_file; ?>"><img src="<?php echo "uploads/".pathinfo($target_file, PATHINFO_BASENAME); ?>" width="50%" class="after" alt="<?php echo basename($target_file); ?> before computation"></a>
 					<h4>Computed with configuration:</h4>
 					<p>
 						<!--TODO: saving configuration and getting it from file -->
