@@ -27,7 +27,7 @@
     <div class="jumbotron">
       <div class="container">
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-9">
 				<a href="index.php"><img src="assets/logo.png" alt="logo"></a>
 			</div>
 			<p>
@@ -119,7 +119,8 @@
 				
 			?>
 			</p>
-			<div class="col-md-6">
+			<div class="col-md-3">
+				<a href="help.html"><i class="fa fa-question-circle fa-3x fa-pull-right"></i></a>
 				<a href="https://tutajrobert.github.io/grot/"><i class="fa fa-github fa-3x fa-pull-right"></i></a>
 			</div>
 		</div>

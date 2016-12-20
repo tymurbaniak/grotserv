@@ -1,1 +1,0 @@
-project problem bmp .bmpmat unit scale thickness 2load x  y  solver dispstressdeformed 

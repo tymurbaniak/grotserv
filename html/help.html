@@ -8,19 +8,24 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="">
+
     <title>Try GROT online!</title>
+
     <!-- Bootstrap core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+
     <!-- Custom styles for this template -->
     <link href="assets/css/jumbotron.css" rel="stylesheet">
+
 	<!--[if lte IE 8]><script type="text/javascript" src="assets/js/excanvas.js"></script><![endif]-->
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+	<link href="assets/css/drawing.css" rel="stylesheet">
   </head>
   <body>
     <!-- Main jumbotron for a primary marketing message or call to action -->
@@ -37,35 +42,57 @@
 		</div>
       </div>
     </div>
+
     <div class="container">
       <!-- Example row of columns -->
+	  <h2>Help meh!</h2>
       <div class="row">
-			<?php
-				$displayed = array();
-				$projects = glob('uploads/*.{jpg,png,gif,bmp}', GLOB_BRACE); ?>
-				<h1>Gallery contains <?php echo count($projects); ?> projects</h1>
-				<?php
-				foreach($projects as $file){
-					array_push($displayed, $file); ?>
-					<hr><div class="row">
-						<div class="col-md-3">
-							<a href="<?php echo $file; ?>"><img src="<?php echo $file; ?>" width="50%" class="after" alt="<?php echo basename($file); ?> after computation"></a>
-							<h4>Computed with configuration:</h4>
-							<p>
-								<!--TODO: saving configuration and getting it from file -->
-							</p>
-						</div>
-						<div class="col-md-9">
-					<?php
-					$plots = glob('generated/'.pathinfo($file, PATHINFO_FILENAME).'/*.{png}', GLOB_BRACE);
-					foreach($plots as $plot){ ?>
-						<a href="<?php echo $plot; ?>"><img src="<?php echo $plot; ?>" width="24%" class="after" alt="<?php echo basename($plot); ?> after computation"></a>
-					<?php } ?>
+			<div class="col-md-4">
+			<h3>About:</h3>
+				<p>
+					GROT is a program that uses finite element method FEM for linear static strength calculations in the flat state of stress or strain. Its unique feature is obtaining geometry model for calculation directly from the image saved as a bitmap, and prepared in any drawing program.
+				</p>
+				<p>
+					Read more at: <a href="https://github.com/tutajrobert/grot">github.com/tutajrobert</a>
+				</p>
+				<p>
+					Features in developement:<br>
+					- Drawing models on the website<br>
+					- Solving more precise models (in better resolution)<br>
+					- Implementation of relativity theory for time machine<br>
+					- It will also make coffee
+				</p>
+			</div>
+			<div class="col-md-8">
+			<h3>Settings:</h3>
+				<div class="row">
+					<div class="col-md-6">
+						<p>
+						<b>Problem</b> - State of the problem. Possible SETTINGS: planestress, planestrain.<br>
+						<b>Material</b> - Material selection. Possible SETTINGS: steel, alu, titan. Adding new materials soon! :)<br>
+						<b>Unit</b> - Dimension unit of model. Possible SETTINGS: nm, um, mm, cm, dm, m, km.<br>
+						<b>Scale</b> - Scale of the model. Multiplies default bitmap model unit dimension by scalar. For example: 20 px width in bitmap can be 40 mm in computational model with scale 2.<br>
+						<b>Load</b> - Force applied to appropriate boundary color. X is horizontal direction, Y is vertical.<br>
+						<b>Solver</b> - Solver selection. Possible SETTINGS: direct, lsqs. Lsqs is iterative least square method solver.<br>
+						<b>Disp</b> - Displacements results selection. Possible SETTINGS: x, y, mag. That is displacement in X axis, Y axis and magnitude.<br>
+						</p>
+					</div>
+					<div class="col-md-6">
+						<p>
+						<b>Stress</b> - Stress and strains results selection. Possible SETTINGS: eps_x, eps_y, gamma_xy, sig_x, sig_y, tau_xy, huber, sign_huber. <br>
+						eps_x, eps_y, gamma_xy - Strains in X direction, strains in Y direction, shear strains <br>
+						sig_x, sig_y, tau_xy - Stress in X direction, stress in Y direction, shear stress <br>
+						huber, sign_huber - Huber equivalent stress, signed huber equivalent stress<br>
+						<b>Deformed</b> - Plot of deformed model. Number is deformation scale multiplier, where 1 is equal to standard nodal dimension between two nodes.
+						</p>
 					</div>
 				</div>
-				<?php } ?> 
-				<!-- TODO: pagination -->
+		   </div>
+        
+      </div>
+
       <hr>
+
       <footer>
         <p><a href="https://tutajrobert.github.io/grot/">GROT at github</a> | Author: <a href="https://github.com/tutajrobert">tutajrobert</a> | Pushed on the web by: <a href="http://tymur.pl">tymur.pl</a></p>
       </footer>
