@@ -27,16 +27,18 @@
     <div class="jumbotron">
       <div class="container">
 		<div class="row">
-			<div class="col-md-9">
+			<div class="col-md-3">
 				<a href="index.php"><img src="assets/logo.png" alt="logo"></a>
 			</div>
+			<div class="col-md-6">
 			<p>
 			<?php
 				$target_dir = "/var/www/html/uploads/";
 				
 				// Check if image file is a actual image or fake image
 				if(isset($_POST["submit"])) {
-					$target_file = $target_dir . basename($_FILES["bitmap"]["name"]);
+					$name = makename(basename($_FILES["bitmap"]["name"]));
+					$target_file = $target_dir . $name. ".".pathinfo($_FILES["bitmap"]["name"],PATHINFO_EXTENSION);
 					$uploadOk = 1;
 					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 					$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
@@ -51,7 +53,7 @@
 							$stress = getoptions($_POST["stress"]);
 						}
 						if(isset($_FILES["bitmap"]["name"])){
-							$projectname = pathinfo($_FILES["bitmap"]["name"], PATHINFO_FILENAME);
+							$projectname = pathinfo($name, PATHINFO_FILENAME);
 						}
 						if(isset($_POST["problem"])){
 							$problem = $_POST["problem"];
@@ -116,9 +118,13 @@
 					}
 					return $reval;
 				}
-				
+				function makename($oldname){
+					$buff = base64_encode($oldname.$_FILES["bitmap"]["tmp_name"].bin2hex(openssl_random_pseudo_bytes(4)));
+					return substr($buff, 4, 6);
+				}
 			?>
 			</p>
+			</div>
 			<div class="col-md-3">
 				<a href="help.html"><i class="fa fa-question-circle fa-3x fa-pull-right"></i></a>
 				<a href="https://tutajrobert.github.io/grot/"><i class="fa fa-github fa-3x fa-pull-right"></i></a>
