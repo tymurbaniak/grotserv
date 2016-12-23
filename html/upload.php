@@ -55,8 +55,9 @@
 						if(isset($_POST["canvs_image"])){
 							$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
 							$name = makename(substr($_POST["canvs_image"], 100, 8));
-							setconffile($name);
 							$target_file = $target_dir . $name. ".png";
+							setconffile($target_file);
+							echo $target_file;
 							$data = base64_decode($data);  
 							$fp = fopen($target_file, 'w');  
 							fwrite($fp, $data);  
@@ -69,7 +70,7 @@
 					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 				}
 				function setconffile($mname){
-					$disp ="";
+						$disp ="";
 						$stress ="";
 						if(isset($_POST["disp"])){
 							$disp = getoptions($_POST["disp"]);
@@ -110,7 +111,7 @@
 						$settings = array(
 						"project ".$projectname."\n",
 						"problem ".$problem."\n",
-						"bmp ".$projectname.".bmp\n",
+						"bmp ".$projectname.".".pathinfo($mname,PATHINFO_EXTENSION)."\n",
 						"mat ".$mat."\n",
 						"unit ".$unit."\n",
 						"scale ".$scale."\n",

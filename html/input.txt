@@ -1,12 +1,12 @@
-project V
+project ZXd0Y3
 problem planestress
-bmp V.bmp
+bmp ZXd0Y3.png
 mat steel
 unit nm
 scale 1
 thickness 2
 load x 0 y -100 magenta
 solver direct
-disp x mag
-stress eps_x sig_x sign_huber eps_y sig_y
+disp
+stress
 deformed 2
