@@ -46,23 +46,24 @@
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
-		<form action="upload.php" method="POST" enctype="multipart/form-data">
+		<form action="upload.php" method="POST" enctype="multipart/form-data" id="projectform">
 			<div class="col-md-4">
 				<h2>Draw or upload</h2>
 					<div class="tools">
 						<?php
 							$colors = array('#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff');
 							foreach($colors as $color){
-								echo "<a href='#colors_sketch' data-color='".$color."' style='background: ".$color.";'>&nbsp;</a>";
+								echo "<a href='#canv' data-color='".$color."' style='background: ".$color.";'>&nbsp;</a>";
 							}
 							$sizes = array(3, 5, 10, 15);
 							foreach($sizes as $size){
-									echo "<a  class='size' href='#colors_sketch' data-size='".$size."' style='background: #ccc;'>".$size."</a>";
+									echo "<a  class='size' href='#canv' data-size='".$size."' style='background: #ccc;'>".$size."</a>";
 							}
 						?>
 					</div>
-					<canvas id="colors_sketch" height="300" style="border: 1px solid #000; margin: 1px 0 0 0;"></canvas>
+					<canvas id="canv" height="355" style="border: 1px solid #000; margin: 1px 0 0 0;"></canvas>
 				<div class="form-group form-inline">
+					<input type="hidden" name="canvs_image" id="canvs_image">
 					<input type="file" name="bitmap" id="bitmap" class="btn btn-primary btn-lg btn-block">
 					<input type="submit" value="Upload Bitmap" name="submit" class="btn btn-primary btn-lg btn-block">
 				</div>
@@ -202,19 +203,61 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="bootstrap/js/jquery.min.js"><\/script>')</script>
+    <script>window.jQuery || document.write('<script src="bootstrap/js/jquery.min.js"><\/script>');</script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	<script src="assets/js/drawing.js"></script>
 	<script type="text/javascript">
 	  $(function() {
 		$.each([], function() {
-		  $('#colors_demo .tools').append("<a href='#colors_sketch' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
+		  $('#colors_demo .tools').append("<a href='#canv' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
 		});
 		$.each([3, 5, 10, 15], function() {
-		  $('#colors_demo .tools').append("<a href='#colors_sketch' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
+		  $('#colors_demo .tools').append("<a href='#canv' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
 		});
-		$('#colors_sketch').sketch();
+		$('#canv').sketch();
 	  });
+	</script>
+	<script type="text/javascript">
+	$(function() {
+		$('#projectform').submit(function() {
+			var img = document.getElementById("canv");
+			var ctx = img.getContext("2d");
+			var scaled = document.createElement('canvas');
+			scaled.width = 50;
+			scaled.height = 50;
+			var scaledctx = scaled.getContext("2d");
+			scaledctx.drawImage(img, 0, 0, img.width, img.height,     // source rectangle
+						0, 0, 50, 50); // destination rectangle
+			var dataURL = canvasToImage("white", scaledctx, scaled);
+			document.getElementById('canvs_image').value = dataURL;
+			//chyba musi być create!
+			return true; 
+		});
+		function canvasToImage(backgroundColor ,context, canvas){
+			//cache height and width        
+			var w = canvas.width;
+			var h = canvas.height;
+			var data;
+			if(backgroundColor)
+			{
+				data = context.getImageData(0, 0, w, h);
+				
+				var compositeOperation = context.globalCompositeOperation;
+				context.globalCompositeOperation = "destination-over";
+				context.fillStyle = backgroundColor;
+				context.fillRect(0,0,w,h);
+			}
+			//get the image data from the canvas
+			var imageData = canvas.toDataURL("image/png");
+			if(backgroundColor)
+			{
+				context.clearRect (0,0,w,h);
+				context.putImageData(data, 0,0); 			
+				context.globalCompositeOperation = compositeOperation;
+			}
+			return imageData;
+		}
+	});
 	</script>
     </body>
 </html>
