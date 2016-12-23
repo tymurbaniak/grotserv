@@ -34,17 +34,42 @@
 			<p>
 			<?php
 				$target_dir = "/var/www/html/uploads/";
+				$name = "";
 				
-				// Check if image file is a actual image or fake image
 				if(isset($_POST["submit"])) {
-					$name = makename(basename($_FILES["bitmap"]["name"]));
-					$target_file = $target_dir . $name. ".".pathinfo($_FILES["bitmap"]["name"],PATHINFO_EXTENSION);
-					$uploadOk = 1;
-					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-					$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
-					if($check !== false) {
+					if(is_uploaded_file($_FILES['bitmap']['tmp_name'])){
+						echo "upload<br>";
+						$name = makename(basename($_FILES["bitmap"]["name"]));
+						$target_file = $target_dir . $name. ".png";
+						$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
 						echo "File is an image - " . $check["mime"] . ".";
-						$disp ="";
+						setconffile($name);
+						if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
+						echo "File uploaded!<br>";
+						$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+						echo "<p>".$output."</p>";
+						} else {
+							echo "Upload errror<br>";
+						}
+					}else{
+						if(isset($_POST["canvs_image"])){
+							$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
+							$name = makename(substr($_POST["canvs_image"], 100, 8));
+							setconffile($name);
+							$target_file = $target_dir . $name. ".png";
+							$data = base64_decode($data);  
+							$fp = fopen($target_file, 'w');  
+							fwrite($fp, $data);  
+							fclose($fp); 
+							$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+							echo "<p>".$output."</p>";
+						}
+						
+					}
+					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+				}
+				function setconffile($mname){
+					$disp ="";
 						$stress ="";
 						if(isset($_POST["disp"])){
 							$disp = getoptions($_POST["disp"]);
@@ -53,7 +78,7 @@
 							$stress = getoptions($_POST["stress"]);
 						}
 						if(isset($_FILES["bitmap"]["name"])){
-							$projectname = pathinfo($name, PATHINFO_FILENAME);
+							$projectname = pathinfo($mname, PATHINFO_FILENAME);
 						}
 						if(isset($_POST["problem"])){
 							$problem = $_POST["problem"];
@@ -98,18 +123,6 @@
 						);
 						
 						file_put_contents("input.txt", $settings);
-					if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
-						echo "File uploaded!<br>";
-						$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-						echo "<p>".$output."</p>";
-					} else {
-						echo "Upload errror<br>";
-					}
-						$uploadOk = 1;
-					} else {
-						echo "File is not an image.";
-						$uploadOk = 0;
-					}
 				}
 				function getoptions($array){
 					$reval = "";
@@ -122,6 +135,7 @@
 					$buff = base64_encode($oldname.$_FILES["bitmap"]["tmp_name"].bin2hex(openssl_random_pseudo_bytes(4)));
 					return substr($buff, 4, 6);
 				}
+				
 			?>
 			</p>
 			</div>
