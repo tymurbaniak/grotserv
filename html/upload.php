@@ -35,7 +35,7 @@
 			<?php
 				$target_dir = "/var/www/html/uploads/";
 				$name = "";
-				
+				$msettings = array();
 				if(isset($_POST["submit"])) {
 					if(is_uploaded_file($_FILES['bitmap']['tmp_name'])){
 						echo "upload<br>";
@@ -43,7 +43,7 @@
 						$target_file = $target_dir . $name. ".png";
 						$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
 						echo "File is an image - " . $check["mime"] . ".";
-						setconffile($name);
+						$msettings = setconffile($name);
 						if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
 						echo "File uploaded!<br>";
 						$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
@@ -56,7 +56,7 @@
 							$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
 							$name = makename(substr($_POST["canvs_image"], 100, 8));
 							$target_file = $target_dir . $name. ".png";
-							setconffile($target_file);
+							$msettings = setconffile($name);
 							echo $target_file;
 							$data = base64_decode($data);  
 							$fp = fopen($target_file, 'w');  
@@ -122,8 +122,11 @@
 						"stress".$stress."\n",
 						"deformed ".$deformation."\n",
 						);
-						
+						mkdir("config/".$projectname, 600);
 						file_put_contents("input.txt", $settings);
+						file_put_contents("config/".$projectname."/config", json_encode($settings));
+						
+						return $settings;
 				}
 				function getoptions($array){
 					$reval = "";
@@ -156,7 +159,15 @@
 					<a href="<?php echo $target_file; ?>"><img src="<?php echo "uploads/".pathinfo($target_file, PATHINFO_BASENAME); ?>" width="50%" class="after" alt="<?php echo basename($target_file); ?> before computation"></a>
 					<h4>Computed with configuration:</h4>
 					<p>
-						<!--TODO: saving configuration and getting it from file -->
+						Problem: <?php echo substr($msettings[1], 8, strlen($msettings[1])); ?> <br>
+						Material: <?php echo substr($msettings[3], 4, strlen($msettings[3])); ?> <br>
+						Unit: <?php echo substr($msettings[4], 5, strlen($msettings[4])); ?> <br>
+						Scale: <?php echo substr($msettings[5], 6, strlen($msettings[5])); ?> <br>
+						Load: <?php echo substr($msettings[7], 5, strlen($msettings[7])); ?> <br>
+						Solver: <?php echo substr($msettings[8], 7, strlen($msettings[8])); ?> <br>
+						Displacement: <?php echo substr($msettings[9], 5, strlen($msettings[7])); ?> <br>
+						Stress: <?php echo substr($msettings[10], 7, strlen($msettings[10])); ?> <br>
+						Deformation scale: <?php echo substr($msettings[11], 9, strlen($msettings[11])); ?> <br>
 					</p>
 				</div>
 				<div class="col-md-9">

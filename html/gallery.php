@@ -46,13 +46,22 @@
 				<h1>Gallery contains <?php echo count($projects); ?> projects</h1>
 				<?php
 				foreach($projects as $file){
-					array_push($displayed, $file); ?>
+					array_push($displayed, $file); 
+					$msettings = json_decode(file_get_contents("config/".pathinfo($file, PATHINFO_FILENAME)."/config")); ?>
 					<hr><div class="row">
 						<div class="col-md-3">
 							<a href="<?php echo $file; ?>"><img src="<?php echo $file; ?>" width="50%" class="after" alt="<?php echo basename($file); ?> after computation"></a>
 							<h4>Computed with configuration:</h4>
 							<p>
-								<!--TODO: saving configuration and getting it from file -->
+								Problem: <?php echo substr($msettings[1], 8, strlen($msettings[1])); ?> <br>
+								Material: <?php echo substr($msettings[3], 4, strlen($msettings[3])); ?> <br>
+								Unit: <?php echo substr($msettings[4], 5, strlen($msettings[4])); ?> <br>
+								Scale: <?php echo substr($msettings[5], 6, strlen($msettings[5])); ?> <br>
+								Load: <?php echo substr($msettings[7], 5, strlen($msettings[7])); ?> <br>
+								Solver: <?php echo substr($msettings[8], 7, strlen($msettings[8])); ?> <br>
+								Displacement: <?php echo substr($msettings[9], 5, strlen($msettings[7])); ?> <br>
+								Stress: <?php echo substr($msettings[10], 7, strlen($msettings[10])); ?> <br>
+								Deformation scale: <?php echo substr($msettings[11], 9, strlen($msettings[11])); ?> <br>
 							</p>
 						</div>
 						<div class="col-md-9">
