@@ -85,7 +85,7 @@ class prepare():
         self.init_cmap = "inferno_r"
         self.scale = scale
         
-    def save_deformed(self, results, proj_name):
+    def save_deformed(self, results, proj_name, path = False):
         
         """
         Matplotlib script for results viewing
@@ -223,8 +223,18 @@ class prepare():
         
         frame = legend.get_frame()
         frame.set_edgecolor("white")        
-        if not os.path.exists("/var/www/html/generated" + os.sep + proj_name):
-            os.makedirs("/var/www/html/generated" + os.sep + proj_name)
-        plt.savefig("/var/www/html/generated" + os.sep + proj_name + os.sep + results + ".png", DPI = 600)
+        if path == False:    
+            if not os.path.exists("results" + os.sep + proj_name):
+                os.makedirs("results" + os.sep + proj_name)
+            plt.savefig("results" + os.sep + proj_name + os.sep + results + ".png", DPI = 600)
         
-        print("Saved results file", "[" + results + ".png] to /generated" + os.sep + proj_name + os.sep)
+            print("Saved results file", "[" + results + ".png] to results" + os.sep + proj_name + os.sep)
+        
+        elif path != False:
+            if not os.path.exists(proj_name):
+                os.makedirs(proj_name)
+            if proj_name[-1] != os.sep:
+                proj_name = proj_name + os.sep
+            plt.savefig(proj_name + results + ".png", DPI = 600) 
+
+            print("Saved results file", "[" + results + ".png] to " + proj_name)

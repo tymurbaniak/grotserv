@@ -1,4 +1,5 @@
-from PIL import Image, ImageCms
+from PIL import Image
+from PIL import ImageCms
 import numpy
 import math
 import prep
@@ -9,15 +10,18 @@ import version
 
 vers = version.get()
 
-def open(im_name):
+def open(im_name, path = False):
     
     #Welcome message
     print("")
-    print("GRoT> ver. " + vers + ", [Graficzny Rozwiazywacz Tarcz]")
+    print("GRoT> ver. " + vers + ", [Graficzny Rozwiązywacz Tarcz]")
     print("..............................................")
     
     #Image opening and size check
-    im = Image.open("/var/www/html/uploads" + os.sep + im_name)
+    if path == False:
+        im = Image.open("projects" + os.sep + im_name)
+    elif path != False:
+        im = Image.open(im_name)
     width = im.size[0]
     height = im.size[1]
 

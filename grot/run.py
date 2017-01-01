@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-import bmp, prep, tools, solver, postpro, deformed
+import bmp, prep, tools, solver, postpro, deformed, sys
 
 #start timer
 t = tools.timer()
@@ -10,6 +9,17 @@ input_file_lines = input_file.readlines()
 
 input_lines = []
 
+proj_path = False
+res_path = False
+
+args = sys.argv
+if len(args) > 1:
+    for i in range(len(args)):
+        if args[i] == "-proj":
+            proj_path = args[i + 1]
+        elif args[i] == "-res":
+            res_path = args[i + 1]
+            
 #create list of lines and words with no end line symbols
 for i in range(len(input_file_lines)):
     input_lines.append(input_file_lines[i].rstrip().split(" "))
@@ -21,9 +31,10 @@ def ksearch(keyword):
         #else:
             #return None
 
-proj_name = ksearch("project")[0]            
-            
-im = bmp.open(ksearch("bmp")[0])
+if proj_path != False:
+    im = bmp.open(proj_path, path = True)
+else:             
+    im = bmp.open(ksearch("bmp")[0], proj_path)
 geom = bmp.create_geom(im)
 
 nodes = geom[0].store()
@@ -61,22 +72,27 @@ elif ksearch("solver")[0] == "lsqs":
     disp = sol.least_squares()
 strains = sol.strains_calc(disp)
 
+if res_path != False:
+    proj_name = res_path
+else:
+    proj_name = ksearch("project")[0]
+
 res_d = ksearch("disp")
 if res_d is not None:
     post = postpro.prepare(nodes, eles, disp)
 for i in range(0, len(res_d)):
-    post.save_dresults(res_d[i], proj_name)
+    post.save_dresults(res_d[i], proj_name, res_path)
 
 res_s = ksearch("stress")
 if res_s is not None:
     post2 = postpro.prepare(nodes, eles, strains)
 for i in range(0, len(res_s)):
-    post2.save_sresults(res_s[i], proj_name)
+    post2.save_sresults(res_s[i], proj_name, res_path)
 
 def_scale = ksearch("deformed")[0]
 if def_scale is not None:
     post3 = deformed.prepare(nodes, eles, disp, float(def_scale))
-    post3.save_deformed("deformed", proj_name)
+    post3.save_deformed("deformed", proj_name, res_path)
 
 print("")
 print("Task finished in", t.check())

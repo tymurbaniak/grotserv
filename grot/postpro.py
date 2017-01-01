@@ -1,5 +1,3 @@
-import matplotlib
-matplotlib.use('svg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.cm as cm
@@ -10,7 +8,6 @@ import math
 import numpy
 import tools
 import version
-
 
 vers = version.get()
 
@@ -87,7 +84,7 @@ class prepare():
         self.ncol = 7
         self.init_cmap = "inferno_r"
     
-    def save_dresults(self, results, proj_name):
+    def save_dresults(self, results, proj_name, path = False):
         
         """
         Matplotlib script for results viewing
@@ -160,12 +157,12 @@ class prepare():
         sum_y = max_y + min_y
 
         if diff_x > diff_y:
-         max_y = (sum_y / 2) + (diff_x / 2)
-         min_y = (sum_y / 2) - (diff_x / 2)
-         
+         		max_y = (sum_y / 2) + (diff_x / 2)
+         		min_y = (sum_y / 2) - (diff_x / 2)
+         		
         else:
-         max_x = (sum_x / 2) + (diff_y / 2)
-         min_x = (sum_x / 2) - (diff_y / 2)        
+         		max_x = (sum_x / 2) + (diff_y / 2)
+         		min_x = (sum_x / 2) - (diff_y / 2)        
                 
         #Matplotlib functions
         dis_cmap = cmap = discrete_cmap(self.ncol, self.init_cmap)[0]
@@ -222,14 +219,20 @@ class prepare():
         
         frame = legend.get_frame()
         frame.set_edgecolor("white")
-        if not os.path.exists("/var/www/html/generated" + os.sep + proj_name):
-            os.makedirs("/var/www/html/generated" + os.sep + proj_name)
-        plt.savefig("/var/www/html/generated" + os.sep + proj_name + os.sep + "disp_" + results + ".png", DPI = 600)
+        if path == False:
+            if not os.path.exists("results" + os.sep + proj_name):
+                os.makedirs("results" + os.sep + proj_name)
+            plt.savefig("results" + os.sep + proj_name + os.sep + "disp_" + results + ".png", DPI = 600)
         
-        print("Saved results file", "[" + "disp_" + results + ".png] to generated" + os.sep + proj_name + os.sep)
-        
-        
-    def save_sresults(self, results, proj_name):
+            print("Saved results file", "[" + "disp_" + results + ".png] to results" + os.sep + proj_name + os.sep)
+        elif path != False:
+            if not os.path.exists(proj_name):
+                os.makedirs(proj_name)
+            if proj_name[-1] != os.sep:
+                proj_name = proj_name + os.sep
+            plt.savefig(proj_name + "disp_" + results + ".png", DPI = 600)
+            print("Saved results file", "[" + "disp_" + results + ".png] to " + proj_name)
+    def save_sresults(self, results, proj_name, path = False):
         
         """
         Matplotlib script for results viewing
@@ -329,12 +332,12 @@ class prepare():
         sum_y = max_y + min_y
 
         if diff_x > diff_y:
-         max_y = (sum_y / 2) + (diff_x / 2)
-         min_y = (sum_y / 2) - (diff_x / 2)
-         
+         		max_y = (sum_y / 2) + (diff_x / 2)
+         		min_y = (sum_y / 2) - (diff_x / 2)
+         		
         else:
-         max_x = (sum_x / 2) + (diff_y / 2)
-         min_x = (sum_x / 2) - (diff_y / 2)
+         		max_x = (sum_x / 2) + (diff_y / 2)
+         		min_x = (sum_x / 2) - (diff_y / 2)
 
         #Matplotlib functions
         dis_cmap = cmap=discrete_cmap(self.ncol, self.init_cmap)[0]
@@ -344,7 +347,7 @@ class prepare():
         #cmap.set_under([0.19215687, 0.21176471, 0.58431375, 1.])
         cmap.set_over(discrete_cmap(self.ncol, self.init_cmap)[2])
         cmap.set_under(discrete_cmap(self.ncol, self.init_cmap)[1])
-
+		
         p = PatchCollection(patch_list, cmap = dis_cmap, alpha = 1.0)
         p.set_array(numpy.array(colors))
         ax.add_collection(p)
@@ -362,7 +365,7 @@ class prepare():
         logo_legend = plt.scatter(1e6, 1e6, marker = "None", label = "GRoT> ver. " + vers)
         
         plt.rcParams["patch.linewidth"] = 0.5
-        if float(min_string) < 0 and float(max_string) >= 0:
+        if float(min_string) < 0 and float(max_string) >=	 0:
             max_legend = plt.scatter(x_pos_max, y_pos_max, marker = "^", c = "white", s = 52, label = "max:  " + str(max_string))
         else:
             max_legend = plt.scatter(x_pos_max, y_pos_max, marker = "^", c = "white", s = 52, label = "max: " + str(max_string))
@@ -430,8 +433,16 @@ class prepare():
         frame = legend.get_frame()
         frame.set_edgecolor("white")
         #plt.grid()
-        if not os.path.exists("/var/www/html/generated" + os.sep + proj_name):
-            os.makedirs("/var/www/html/generated" + os.sep + proj_name)
-        plt.savefig("/var/www/html/generated" + os.sep + proj_name + os.sep + results + ".png", DPI = 1200)
+        if path == False:
+            if not os.path.exists("results" + os.sep + proj_name):
+                os.makedirs("results" + os.sep + proj_name)
+            plt.savefig("results" + os.sep + proj_name + os.sep + results + ".png", DPI = 1200)
         
-        print("Saved results file", "[" + results + ".png] to /generated" + os.sep + proj_name + os.sep)
+            print("Saved results file", "[" + results + ".png] to results" + os.sep + proj_name + os.sep)
+        elif path != False:
+            if not os.path.exists(proj_name):
+                os.makedirs(proj_name)
+            if proj_name[-1] != os.sep:
+                proj_name = proj_name + os.sep
+            plt.savefig(proj_name + results + ".png", DPI = 600)
+            print("Saved results file", "[" + results + ".png] to " + proj_name)
