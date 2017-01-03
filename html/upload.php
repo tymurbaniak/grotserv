@@ -33,6 +33,7 @@
 			<div class="col-md-6">
 			<p>
 			<?php
+				include 'bmp_3.php';
 				$target_dir = "/var/www/html/uploads/";
 				$name = "";
 				$msettings = array();
@@ -40,30 +41,42 @@
 					if(is_uploaded_file($_FILES['bitmap']['tmp_name'])){
 						echo "upload<br>";
 						$name = makename(basename($_FILES["bitmap"]["name"]));
-						$target_file = $target_dir . $name. ".png";
-						$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
-						echo "File is an image - " . $check["mime"] . ".";
-						$msettings = setconffile($name);
+						$target_file = $target_dir . $name. ".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION);
+						//$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
+						//echo "File is an image - " . $check["mime"] . ".";
+						$msettings = setconffile($name.".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION));
 						if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
-						echo "File uploaded!<br>";
-						$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-						echo "<p>".$output."</p>";
+							if(checkimage($target_file) != "Invalid image"){
+								echo "File uploaded!<br>";
+								$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+								echo "<p>".$output."</p>";
+							}else{
+								echo "Image is corrupted";
+								unlink($target_file);
+							}
 						} else {
-							echo "Upload errror<br>";
+							echo "Upload error<br>";
 						}
 					}else{
 						if(isset($_POST["canvs_image"])){
 							$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
 							$name = makename(substr($_POST["canvs_image"], 100, 8));
-							$target_file = $target_dir . $name. ".png";
-							$msettings = setconffile($name);
+							$target_file = $target_dir . $name.".png";
+							$msettings = setconffile($name.".png");
 							echo $target_file;
-							$data = base64_decode($data);  
-							$fp = fopen($target_file, 'w');  
-							fwrite($fp, $data);  
-							fclose($fp); 
-							$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-							echo "<p>".$output."</p>";
+							$data = base64_decode($data); 
+							file_put_contents($target_file, $data); 
+							//$fp = fopen($target_file, 'w');  
+							//fwrite($fp, $data);  
+							//fclose($fp); 
+							$check = checkimage($target_file);
+							if($check != "Invalid image"){
+								$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+								echo "<p>".$output."</p>";
+							}else{
+								unlink($target_file);
+								echo "Something went wrong, try again!";
+							}
 						}
 						
 					}
@@ -122,11 +135,35 @@
 						"stress".$stress."\n",
 						"deformed ".$deformation."\n",
 						);
-						mkdir("config/".$projectname, 600);
+						mkdir("config/".$projectname, 0755);
 						file_put_contents("input.txt", $settings);
 						file_put_contents("config/".$projectname."/config", json_encode($settings));
-						
 						return $settings;
+				}
+				function checkimage($image){
+					$extension = pathinfo(basename($image), PATHINFO_EXTENSION);
+					echo $extension."<br>";
+					switch ($extension) { 
+						case "jpg" :
+							$im = @imagecreatefromjpeg($image);
+							break;
+						case "png" :
+							$im = @imagecreatefrompng($image);
+							break;
+						case "bmp" :
+							$im = @imagecreatefrombmp($image);
+							echo "BMP!!!";
+							break;
+						case "gif" :
+							$im = @imagecreatefromgif($image);
+							break;
+						default :
+							$extension = "Invalid image";
+					}
+					if(!$im) $extension = "Invalid image";
+					echo "wut: ".$extension."<br>";
+					imagedestroy($im);
+					return $extension;
 				}
 				function getoptions($array){
 					$reval = "";
@@ -136,8 +173,8 @@
 					return $reval;
 				}
 				function makename($oldname){
-					$buff = base64_encode($oldname.$_FILES["bitmap"]["tmp_name"].bin2hex(openssl_random_pseudo_bytes(4)));
-					return substr($buff, 4, 6);
+					$buff = bin2hex(openssl_random_pseudo_bytes(4));
+					return $buff;
 				}
 				
 			?>

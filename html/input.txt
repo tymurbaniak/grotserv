@@ -1,6 +1,6 @@
-project ZXd0Y3
+project f01f99b7
 problem planestress
-bmp ZXd0Y3.png
+bmp f01f99b7.jpg
 mat steel
 unit nm
 scale 1
