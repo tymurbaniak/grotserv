@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -63,7 +64,6 @@
 							$name = makename(substr($_POST["canvs_image"], 100, 8));
 							$target_file = $target_dir . $name.".png";
 							$msettings = setconffile($name.".png");
-							echo $target_file;
 							$data = base64_decode($data); 
 							file_put_contents($target_file, $data); 
 							//$fp = fopen($target_file, 'w');  
@@ -86,40 +86,40 @@
 						$disp ="";
 						$stress ="";
 						if(isset($_POST["disp"])){
-							$disp = getoptions($_POST["disp"]);
+							$disp = xssafe(getoptions($_POST["disp"]));
 						}
 						if(isset($_POST["stress"])){
-							$stress = getoptions($_POST["stress"]);
+							$stress = xssafe(getoptions($_POST["stress"]));
 						}
 						if(isset($_FILES["bitmap"]["name"])){
-							$projectname = pathinfo($mname, PATHINFO_FILENAME);
+							$projectname = xssafe(pathinfo($mname, PATHINFO_FILENAME));
 						}
 						if(isset($_POST["problem"])){
-							$problem = $_POST["problem"];
+							$problem = xssafe($_POST["problem"]);
 						}
 						if(isset($_POST["mat"])){
-							$mat = $_POST["mat"];
+							$mat = xssafe($_POST["mat"]);
 						}
 						if(isset($_POST["unit"])){
-							$unit = $_POST["unit"];
+							$unit = xssafe($_POST["unit"]);
 						}
 						if(isset($_POST["scale"])){
-							$scale = $_POST["scale"];
+							$scale = xssafe($_POST["scale"]);
 						}
 						if(isset($_POST["loadx"])){
-							$loadx = $_POST["loadx"];
+							$loadx = xssafe($_POST["loadx"]);
 						}
 						if(isset($_POST["loady"])){
-							$loady = $_POST["loady"];
+							$loady = xssafe($_POST["loady"]);
 						}
 						if(isset($_POST["loadcolor"])){
-							$loadcolor = $_POST["loadcolor"];
+							$loadcolor = xssafe($_POST["loadcolor"]);
 						}
 						if(isset($_POST["solver"])){
-							$solver = $_POST["solver"];
+							$solver = xssafe($_POST["solver"]);
 						}
 						if(isset($_POST["deformation"])){
-							$deformation = $_POST["deformation"];
+							$deformation = xssafe($_POST["deformation"]);
 						}
 						$settings = array(
 						"project ".$projectname."\n",
@@ -142,7 +142,6 @@
 				}
 				function checkimage($image){
 					$extension = pathinfo(basename($image), PATHINFO_EXTENSION);
-					echo $extension."<br>";
 					switch ($extension) { 
 						case "jpg" :
 							$im = @imagecreatefromjpeg($image);
@@ -152,7 +151,6 @@
 							break;
 						case "bmp" :
 							$im = @imagecreatefrombmp($image);
-							echo "BMP!!!";
 							break;
 						case "gif" :
 							$im = @imagecreatefromgif($image);
@@ -161,7 +159,6 @@
 							$extension = "Invalid image";
 					}
 					if(!$im) $extension = "Invalid image";
-					echo "wut: ".$extension."<br>";
 					imagedestroy($im);
 					return $extension;
 				}
@@ -176,7 +173,10 @@
 					$buff = bin2hex(openssl_random_pseudo_bytes(4));
 					return $buff;
 				}
-				
+				function xssafe($data,$encoding='UTF-8')
+				{
+				return htmlspecialchars($data,ENT_QUOTES | ENT_HTML401,$encoding);
+				}		
 			?>
 			</p>
 			</div>
