@@ -26,6 +26,7 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 	<link href="assets/css/drawing.css" rel="stylesheet">
+	<script src='https://www.google.com/recaptcha/api.js'></script>
   </head>
   <body>
     <!-- Main jumbotron for a primary marketing message or call to action -->
@@ -168,6 +169,7 @@
 						</div>
 					</div>
 				</div>
+				<div class="g-recaptcha" data-sitekey="6Le3LRIUAAAAANuzz6OuplVueBzpgxpMArKQqoXg"></div>
 		   </div>
 		</form>
         <div class="col-md-4">
@@ -230,7 +232,7 @@
 						0, 0, 50, 50); // destination rectangle
 			var dataURL = canvasToImage("white", scaledctx, scaled);
 			document.getElementById('canvs_image').value = dataURL;
-			//chyba musi być create!
+			//chyba musi byÄ‡ create!
 			return true; 
 		});
 		function canvasToImage(backgroundColor ,context, canvas){

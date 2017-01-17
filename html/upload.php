@@ -34,149 +34,169 @@
 			<div class="col-md-6">
 			<p>
 			<?php
+				require_once "recaptchalib.php";
+				$siteKey = "XXXXXXXXXXXXXXXXXXXXXXXX";
+				$secret = "XXXXXXXXXXXXXXXXXXXXXX";
 				include 'bmp_3.php';
-				$target_dir = "/var/www/html/uploads/";
-				$name = "";
-				$msettings = array();
-				if(isset($_POST["submit"])) {
-					if(is_uploaded_file($_FILES['bitmap']['tmp_name'])){
-						echo "upload<br>";
-						$name = makename(basename($_FILES["bitmap"]["name"]));
-						$target_file = $target_dir . $name. ".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION);
-						//$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
-						//echo "File is an image - " . $check["mime"] . ".";
-						$msettings = setconffile($name.".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION));
-						if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
-							if(checkimage($target_file) != "Invalid image"){
-								echo "File uploaded!<br>";
-								$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-								echo "<p>".$output."</p>";
-							}else{
-								echo "Image is corrupted";
-								unlink($target_file);
-							}
-						} else {
-							echo "Upload error<br>";
-						}
-					}else{
-						if(isset($_POST["canvs_image"])){
-							$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
-							$name = makename(substr($_POST["canvs_image"], 100, 8));
-							$target_file = $target_dir . $name.".png";
-							$msettings = setconffile($name.".png");
-							$data = base64_decode($data); 
-							file_put_contents($target_file, $data); 
-							//$fp = fopen($target_file, 'w');  
-							//fwrite($fp, $data);  
-							//fclose($fp); 
-							$check = checkimage($target_file);
-							if($check != "Invalid image"){
-								$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
-								echo "<p>".$output."</p>";
-							}else{
-								unlink($target_file);
-								echo "Something went wrong, try again!";
-							}
-						}
-						
-					}
-					$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+				// reCAPTCHA supported 40+ languages listed here: https://developers.google.com/recaptcha/docs/language
+				$lang = "pl";
+				// The response from reCAPTCHA
+				$resp = null;
+				// The error code from reCAPTCHA, if any
+				$error = null;
+				$reCaptcha = new ReCaptcha($secret);
+				// Was there a reCAPTCHA response?
+				if ($_POST["g-recaptcha-response"]) {
+					$resp = $reCaptcha->verifyResponse(
+						$_SERVER["REMOTE_ADDR"],
+						$_POST["g-recaptcha-response"]
+					);
 				}
+				
 				function setconffile($mname){
-						$disp ="";
-						$stress ="";
-						if(isset($_POST["disp"])){
-							$disp = xssafe(getoptions($_POST["disp"]));
-						}
-						if(isset($_POST["stress"])){
-							$stress = xssafe(getoptions($_POST["stress"]));
-						}
-						if(isset($_FILES["bitmap"]["name"])){
-							$projectname = xssafe(pathinfo($mname, PATHINFO_FILENAME));
-						}
-						if(isset($_POST["problem"])){
-							$problem = xssafe($_POST["problem"]);
-						}
-						if(isset($_POST["mat"])){
-							$mat = xssafe($_POST["mat"]);
-						}
-						if(isset($_POST["unit"])){
-							$unit = xssafe($_POST["unit"]);
-						}
-						if(isset($_POST["scale"])){
-							$scale = xssafe($_POST["scale"]);
-						}
-						if(isset($_POST["loadx"])){
-							$loadx = xssafe($_POST["loadx"]);
-						}
-						if(isset($_POST["loady"])){
-							$loady = xssafe($_POST["loady"]);
-						}
-						if(isset($_POST["loadcolor"])){
-							$loadcolor = xssafe($_POST["loadcolor"]);
-						}
-						if(isset($_POST["solver"])){
-							$solver = xssafe($_POST["solver"]);
-						}
-						if(isset($_POST["deformation"])){
-							$deformation = xssafe($_POST["deformation"]);
-						}
-						$settings = array(
-						"project ".$projectname."\n",
-						"problem ".$problem."\n",
-						"bmp ".$projectname.".".pathinfo($mname,PATHINFO_EXTENSION)."\n",
-						"mat ".$mat."\n",
-						"unit ".$unit."\n",
-						"scale ".$scale."\n",
-						"thickness 2\n",
-						"load x ".$loadx." y ".$loady." ".$loadcolor."\n",
-						"solver ".$solver."\n",
-						"disp".$disp."\n",
-						"stress".$stress."\n",
-						"deformed ".$deformation."\n",
-						);
-						mkdir("config/".$projectname, 0755);
-						file_put_contents("input.txt", $settings);
-						file_put_contents("config/".$projectname."/config", json_encode($settings));
-						return $settings;
-				}
-				function checkimage($image){
-					$extension = pathinfo(basename($image), PATHINFO_EXTENSION);
-					switch ($extension) { 
-						case "jpg" :
-							$im = @imagecreatefromjpeg($image);
-							break;
-						case "png" :
-							$im = @imagecreatefrompng($image);
-							break;
-						case "bmp" :
-							$im = @imagecreatefrombmp($image);
-							break;
-						case "gif" :
-							$im = @imagecreatefromgif($image);
-							break;
-						default :
-							$extension = "Invalid image";
+							$disp ="";
+							$stress ="";
+							if(isset($_POST["disp"])){
+								$disp = xssafe(getoptions($_POST["disp"]));
+							}
+							if(isset($_POST["stress"])){
+								$stress = xssafe(getoptions($_POST["stress"]));
+							}
+							if(isset($_FILES["bitmap"]["name"])){
+								$projectname = xssafe(pathinfo($mname, PATHINFO_FILENAME));
+							}
+							if(isset($_POST["problem"])){
+								$problem = xssafe($_POST["problem"]);
+							}
+							if(isset($_POST["mat"])){
+								$mat = xssafe($_POST["mat"]);
+							}
+							if(isset($_POST["unit"])){
+								$unit = xssafe($_POST["unit"]);
+							}
+							if(isset($_POST["scale"])){
+								$scale = xssafe($_POST["scale"]);
+							}
+							if(isset($_POST["loadx"])){
+								$loadx = xssafe($_POST["loadx"]);
+							}
+							if(isset($_POST["loady"])){
+								$loady = xssafe($_POST["loady"]);
+							}
+							if(isset($_POST["loadcolor"])){
+								$loadcolor = xssafe($_POST["loadcolor"]);
+							}
+							if(isset($_POST["solver"])){
+								$solver = xssafe($_POST["solver"]);
+							}
+							if(isset($_POST["deformation"])){
+								$deformation = xssafe($_POST["deformation"]);
+							}
+							$settings = array(
+							"project ".$projectname."\n",
+							"problem ".$problem."\n",
+							"bmp ".$projectname.".".pathinfo($mname,PATHINFO_EXTENSION)."\n",
+							"mat ".$mat."\n",
+							"unit ".$unit."\n",
+							"scale ".$scale."\n",
+							"thickness 2\n",
+							"load x ".$loadx." y ".$loady." ".$loadcolor."\n",
+							"solver ".$solver."\n",
+							"disp".$disp."\n",
+							"stress".$stress."\n",
+							"deformed ".$deformation."\n",
+							);
+							mkdir("config/".$projectname, 0755);
+							file_put_contents("input.txt", $settings);
+							file_put_contents("config/".$projectname."/config", json_encode($settings));
+							return $settings;
 					}
-					if(!$im) $extension = "Invalid image";
-					imagedestroy($im);
-					return $extension;
-				}
-				function getoptions($array){
-					$reval = "";
-					foreach($array as $row){
-						$reval .= " ".$row;
+					function checkimage($image){
+						$extension = pathinfo(basename($image), PATHINFO_EXTENSION);
+						switch ($extension) { 
+							case "jpg" :
+								$im = @imagecreatefromjpeg($image);
+								break;
+							case "png" :
+								$im = @imagecreatefrompng($image);
+								break;
+							case "bmp" :
+								$im = @imagecreatefrombmp($image);
+								break;
+							case "gif" :
+								$im = @imagecreatefromgif($image);
+								break;
+							default :
+								$extension = "Invalid image";
+						}
+						if(!$im) $extension = "Invalid image";
+						imagedestroy($im);
+						return $extension;
 					}
-					return $reval;
+					function getoptions($array){
+						$reval = "";
+						foreach($array as $row){
+							$reval .= " ".$row;
+						}
+						return $reval;
+					}
+					function makename($oldname){
+						$buff = bin2hex(openssl_random_pseudo_bytes(4));
+						return $buff;
+					}
+					function xssafe($data,$encoding='UTF-8'){
+					return htmlspecialchars($data,ENT_QUOTES | ENT_HTML401,$encoding);
+					}
+					
+				if ($resp != null && $resp->success) {
+					$target_dir = "/var/www/html/uploads/";
+					$name = "";
+					$msettings = array();
+					if(isset($_POST["submit"])) {
+						if(is_uploaded_file($_FILES['bitmap']['tmp_name'])){
+							echo "upload<br>";
+							$name = makename(basename($_FILES["bitmap"]["name"]));
+							$target_file = $target_dir . $name. ".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION);
+							//$check = getimagesize($_FILES["bitmap"]["tmp_name"]);
+							//echo "File is an image - " . $check["mime"] . ".";
+							$msettings = setconffile($name.".".pathinfo($_FILES['bitmap']['name'], PATHINFO_EXTENSION));
+							if(move_uploaded_file($_FILES["bitmap"]["tmp_name"], $target_file)){
+								if(checkimage($target_file) != "Invalid image"){
+									echo "File uploaded!<br>";
+									$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+									echo "<p>".$output."</p>";
+								}else{
+									echo "Image is corrupted";
+									unlink($target_file);
+								}
+							} else {
+								echo "Upload error<br>";
+							}
+						}else{
+							if(isset($_POST["canvs_image"])){
+								$data = substr($_POST["canvs_image"], 22, strlen($_POST["canvs_image"]) - 21);
+								$name = makename(substr($_POST["canvs_image"], 100, 8));
+								$target_file = $target_dir . $name.".png";
+								$msettings = setconffile($name.".png");
+								$data = base64_decode($data); 
+								file_put_contents($target_file, $data); 
+								//$fp = fopen($target_file, 'w');  
+								//fwrite($fp, $data);  
+								//fclose($fp); 
+								$check = checkimage($target_file);
+								if($check != "Invalid image"){
+									$output = exec("sudo -u www-data python3 /home/web/grot/run.py 2>&1");
+									echo "<p>".$output."</p>";
+								}else{
+									unlink($target_file);
+									echo "Something went wrong, try again!";
+								}
+							}
+							
+						}
+						$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+					}
 				}
-				function makename($oldname){
-					$buff = bin2hex(openssl_random_pseudo_bytes(4));
-					return $buff;
-				}
-				function xssafe($data,$encoding='UTF-8')
-				{
-				return htmlspecialchars($data,ENT_QUOTES | ENT_HTML401,$encoding);
-				}		
 			?>
 			</p>
 			</div>
@@ -190,7 +210,13 @@
 	<div class="container">
       <!-- Example row of columns -->
       <div class="row">
-		<h1>Uploaded project: </h1>
+	  <?php 
+		  if ($resp != null && $resp->success) {
+			echo "<h1>Uploaded project: </h1>";
+		  }else{
+			  echo "<h1>You have to fill captcha</h1>";
+		  }
+		?>
 			<hr><div class="row">
 				<div class="col-md-3">
 					<a href="<?php echo $target_file; ?>"><img src="<?php echo "uploads/".pathinfo($target_file, PATHINFO_BASENAME); ?>" width="50%" class="after" alt="<?php echo basename($target_file); ?> before computation"></a>
@@ -216,12 +242,11 @@
 			</div>
 		</div>
       <hr>
-      <footer>
-        <p><a href="https://tutajrobert.github.io/grot/">GROT at github</a> | Author: <a href="https://github.com/tutajrobert">tutajrobert</a> | Pushed on the web by: <a href="http://tymur.pl">tymur.pl</a></p>
-      </footer>
-    </div> <!-- /container -->
-
-
+		  <footer>
+			<p><a href="https://tutajrobert.github.io/grot/">GROT at github</a> | Author: <a href="https://github.com/tutajrobert">tutajrobert</a> | Pushed on the web by: <a href="http://tymur.pl">tymur.pl</a></p>
+		  </footer>
+		</div> <!-- /container -->
+	</div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
